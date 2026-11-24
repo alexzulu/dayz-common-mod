@@ -46,11 +46,40 @@ class CommonMod_TimeCommandConfig
   ref CommonMod_TimeL10n l10n = new CommonMod_TimeL10n();
 }
 
+//! Localized strings for the /ping command.
+class CommonMod_PingL10n
+{
+  //! Lead text before the ping values.
+  string pingPrefix    = "Ваш пинг";
+  //! Label for the current (last-measured) value.
+  string currentLabel  = "текущий";
+  //! Label for the average value.
+  string averageLabel  = "средний";
+  //! Unit suffix appended to each millisecond value.
+  string unit          = "мс";
+  //! Short summary.
+  string description    = "Ваш пинг до сервера";
+}
+
+//! Config block for the /ping command.
+class CommonMod_PingCommandConfig
+{
+  //! Master command on/off switch.
+  bool enabled = true;
+  //! Exact word that triggers the command.
+  string trigger = "/ping";
+  //! Extra trigger words (same behavior as `trigger`).
+  ref array<string> aliases = new array<string>();
+  //! User-facing strings.
+  ref CommonMod_PingL10n l10n = new CommonMod_PingL10n();
+}
+
 //! Per-command configuration blocks.
 class CommonMod_CommandsConfig
 {
   ref CommonMod_PlayersCommandConfig playersList = new CommonMod_PlayersCommandConfig();
   ref CommonMod_TimeCommandConfig time = new CommonMod_TimeCommandConfig();
+  ref CommonMod_PingCommandConfig ping = new CommonMod_PingCommandConfig();
 }
 
 //! Root mod configuration, read from JSON on mission init.

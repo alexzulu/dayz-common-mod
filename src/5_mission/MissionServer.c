@@ -28,6 +28,13 @@ modded class MissionServer
       time.Configure(cfg.commands.time);
       m_CommonModCommands.Insert(time);
     }
+
+    if (cfg.commands.ping.enabled)
+    {
+      CommonMod_CommandPing ping = new CommonMod_CommandPing();
+      ping.Configure(cfg.commands.ping);
+      m_CommonModCommands.Insert(ping);
+    }
   }
 
   //! Engine event hook (chat, VON, connect/disconnect, etc.) - acts only on chat lines - matches the
