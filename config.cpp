@@ -1,12 +1,12 @@
 class CfgMods
 {
-  class StateZ
+  class CommonMod
   {
     type = "mod";
     dir = "common-mod";
     name = "Common mod - alexzulu's server customization mod";
     version = "0.0.1";
-    author = "tarampampam";
+    author = "Paramtamtam";
     credits = "alexzulu";
     hideName = 1;
     hidePicture = 1;
@@ -15,20 +15,15 @@ class CfgMods
 
     class defs
     {
-//      class gameScriptModule
-//      {
-//        files[] = {"statez/scripts/3_game"};
-//      };
-//
-//      class worldScriptModule
-//      {
-//        files[] = { "statez/scripts/4_world" };
-//      };
-//
-//      class missionScriptModule
-//      {
-//        files[] = { "statez/scripts/5_mission" };
-//      };
+      class gameScriptModule
+      {
+        files[] = {"common-mod/src/3_game"};
+      };
+
+      class missionScriptModule
+      {
+        files[] = {"common-mod/src/5_mission"};
+      };
     };
   };
 };
@@ -37,9 +32,6 @@ class CfgPatches
 {
   class AlexZulu
   {
-//    requiredAddons[] = {
-//      "DZ_Data",
-//      "DZ_Scripts",
-//    };
+    requiredAddons[] = {"DZ_Data", "DZ_Scripts"};
   };
 };
