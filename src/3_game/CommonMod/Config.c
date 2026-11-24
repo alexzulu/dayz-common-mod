@@ -82,6 +82,43 @@ class CommonMod_CommandsConfig
   ref CommonMod_PingCommandConfig ping = new CommonMod_PingCommandConfig();
 }
 
+//! Localized strings for the PvP-zone warning.
+class CommonMod_PvpZoneL10n
+{
+  //! Red chat line on crossing INTO the zone (shown once on entry).
+  string chatEnterText = "Вы вошли в PvP-зону - здесь разрешены убийства игроков";
+  //! Red chat line repeated while staying inside the zone.
+  string chatText      = "ВНИМАНИЕ! Вы в находитесь PvP-зоне - убийства других игроков здесь разрешены";
+  //! Yellow chat line on crossing OUT of the zone.
+  string chatExitText  = "Вы покинули PvP-зону";
+  //! Repeated toast title.
+  string toastTitle    = "PvP ZONE";
+  //! Repeated toast body.
+  string toastBody     = "Вы в находитесь PvP-зоне - убийства других игроков здесь разрешены";
+}
+
+//! Config block for the PvP-zone warning.
+class CommonMod_PvpZoneConfig
+{
+  //! Master on/off switch for the whole feature.
+  bool enabled = true;
+  //! Send the chat lines (enter / ongoing / exit) to players at the zone.
+  bool showChatWarning = true;
+  //! Show the toast notification to players inside the zone.
+  bool showToastWarning = true;
+  //! How often each player's position is checked against the zone. Only the check cadence - does
+  //! NOT affect how often alerts fire.
+  int  checkIntervalSeconds = 1;
+  //! Minimum delay between repeated chat/toast alerts while a player stays inside. 33 = chat line's
+  //! full on-screen life (ChatLine FADE_TIMEOUT 30s + FADE_OUT 3s), so the next line fires right as
+  //! the previous one finishes fading out.
+  int  intervalBetweenRepeatsSeconds = 33;
+  //! Toast display duration (seconds); has no effect on the chat line.
+  int  showToastTimeSeconds = 10;
+  //! User-facing strings.
+  ref CommonMod_PvpZoneL10n l10n = new CommonMod_PvpZoneL10n();
+}
+
 //! Root mod configuration, read from JSON on mission init.
 class CommonMod_Config
 {
@@ -94,6 +131,9 @@ class CommonMod_Config
 
   //! All command configuration.
   ref CommonMod_CommandsConfig commands = new CommonMod_CommandsConfig();
+
+  //! PvP-zone warning configuration.
+  ref CommonMod_PvpZoneConfig pvpZone = new CommonMod_PvpZoneConfig();
 
   //! Returns the loaded config, loading it on first access.
   static CommonMod_Config Get()

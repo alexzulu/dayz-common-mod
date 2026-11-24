@@ -5,6 +5,8 @@ modded class MissionServer
 {
   //! Registered (enabled-only) chat commands, scanned on every chat line.
   protected ref array<ref CommonMod_Command> m_CommonModCommands;
+  //! PvP-zone warning feature; null when disabled. Its Tick() is a repeating gameplay call.
+  protected ref CommonMod_PvpZone m_CommonModPvpZone;
 
   //! Engine setup hook (after ctor, before mission start) - load config, register enabled commands.
   override void OnInit()
@@ -35,6 +37,23 @@ modded class MissionServer
       ping.Configure(cfg.commands.ping);
       m_CommonModCommands.Insert(ping);
     }
+
+    if (cfg.pvpZone.enabled)
+    {
+      m_CommonModPvpZone = new CommonMod_PvpZone();
+      m_CommonModPvpZone.Configure(cfg.pvpZone);
+      GetGame().GetCallQueue(CALL_CATEGORY_GAMEPLAY).CallLater(
+        m_CommonModPvpZone.Tick, cfg.pvpZone.checkIntervalSeconds * 1000, true);
+    }
+  }
+
+  //! Mission teardown - drop the repeating PvP-zone tick so it can't fire on a dead object.
+  override void OnMissionFinish()
+  {
+    if (m_CommonModPvpZone)
+      GetGame().GetCallQueue(CALL_CATEGORY_GAMEPLAY).Remove(m_CommonModPvpZone.Tick);
+
+    super.OnMissionFinish();
   }
 
   //! Engine event hook (chat, VON, connect/disconnect, etc.) - acts only on chat lines - matches the
