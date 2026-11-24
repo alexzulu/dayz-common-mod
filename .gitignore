@@ -1,0 +1,23 @@
+## IDEs
+/.idea
+/.vscode
+
+## AI shit
+/.copilot
+/.github/copilot*
+/.cursor
+/.claude
+/.windsurf
+/.aider*
+/.gemini
+CLAUDE.md
+AGENTS.md
+
+## Temp dirs & trash
+/temp
+/tmp
+
+## Etc
+/tools
+/.build*
+/dist
