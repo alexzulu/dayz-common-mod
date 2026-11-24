@@ -21,6 +21,13 @@ modded class MissionServer
       players.Configure(cfg.commands.playersList);
       m_CommonModCommands.Insert(players);
     }
+
+    if (cfg.commands.time.enabled)
+    {
+      CommonMod_CommandTime time = new CommonMod_CommandTime();
+      time.Configure(cfg.commands.time);
+      m_CommonModCommands.Insert(time);
+    }
   }
 
   //! Engine event hook (chat, VON, connect/disconnect, etc.) - acts only on chat lines - matches the
