@@ -24,10 +24,33 @@ class CommonMod_PlayersCommandConfig
   ref CommonMod_PlayersL10n l10n = new CommonMod_PlayersL10n();
 }
 
+//! Localized strings for the /time command.
+class CommonMod_TimeL10n
+{
+  //! Lead text before the time value.
+  string timePrefix  = "Серверное время";
+  //! Short summary.
+  string description  = "Текущее игровое время на сервере";
+}
+
+//! Config block for the /time command.
+class CommonMod_TimeCommandConfig
+{
+  //! Master command on/off switch.
+  bool enabled = true;
+  //! Exact word that triggers the command.
+  string trigger = "/time";
+  //! Extra trigger words (same behavior as `trigger`).
+  ref array<string> aliases = new array<string>();
+  //! User-facing strings.
+  ref CommonMod_TimeL10n l10n = new CommonMod_TimeL10n();
+}
+
 //! Per-command configuration blocks.
 class CommonMod_CommandsConfig
 {
   ref CommonMod_PlayersCommandConfig playersList = new CommonMod_PlayersCommandConfig();
+  ref CommonMod_TimeCommandConfig time = new CommonMod_TimeCommandConfig();
 }
 
 //! Root mod configuration, read from JSON on mission init.
