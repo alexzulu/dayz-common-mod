@@ -94,6 +94,39 @@ class CommonMod_ServerRulesCommandConfig
   ref CommonMod_ServerRulesCommandL10n l10n = new CommonMod_ServerRulesCommandL10n();
 }
 
+//! One admin-declared extra command for /help - a command from ANOTHER mod, listed so players see it too.
+class CommonMod_HelpExtraCommand
+{
+  //! Trigger/name as players type it.
+  string name = "";
+  //! One-line summary.
+  string description = "";
+}
+
+//! Localized strings for the /help command.
+class CommonMod_HelpL10n
+{
+  //! Header line shown before the command list.
+  string listPrefix = "Доступные команды";
+  //! Short summary (this command's own line in the list).
+  string description = "Список доступных команд";
+}
+
+//! Config block for the /help command.
+class CommonMod_HelpCommandConfig
+{
+  //! Master command on/off switch.
+  bool enabled = true;
+  //! Exact word that triggers the command.
+  string trigger = "/help";
+  //! Extra trigger words (same behavior as `trigger`).
+  ref array<string> aliases = {"/commands", "/h", "/usage"};
+  //! Admin-declared extra entries (commands from other mods) appended to the built-in list.
+  ref array<ref CommonMod_HelpExtraCommand> extraCommands = new array<ref CommonMod_HelpExtraCommand>();
+  //! User-facing strings.
+  ref CommonMod_HelpL10n l10n = new CommonMod_HelpL10n();
+}
+
 //! Per-command configuration blocks.
 class CommonMod_CommandsConfig
 {
@@ -101,6 +134,7 @@ class CommonMod_CommandsConfig
   ref CommonMod_TimeCommandConfig time = new CommonMod_TimeCommandConfig();
   ref CommonMod_PingCommandConfig ping = new CommonMod_PingCommandConfig();
   ref CommonMod_ServerRulesCommandConfig serverRules = new CommonMod_ServerRulesCommandConfig();
+  ref CommonMod_HelpCommandConfig help = new CommonMod_HelpCommandConfig();
 }
 
 //! Localized strings for the PvP-zone warning.

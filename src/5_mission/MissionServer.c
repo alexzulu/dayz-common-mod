@@ -64,6 +64,15 @@ modded class MissionServer
       m_CommonModRulesOnJoin = new CommonMod_RulesOnJoin();
       m_CommonModRulesOnJoin.Configure(cfg.showServerRulesOnJoin, rules);
     }
+
+    // registered last so /help lists itself at the end; it reads the registry lazily in Run(), so order
+    // affects only output sequence, not completeness.
+    if (cfg.commands.help.enabled)
+    {
+      CommonMod_CommandHelp help = new CommonMod_CommandHelp();
+      help.Configure(cfg.commands.help, m_CommonModCommands);
+      m_CommonModCommands.Insert(help);
+    }
   }
 
   //! Player connect hook - kick off the rules-on-join show cycle for the joining player.
