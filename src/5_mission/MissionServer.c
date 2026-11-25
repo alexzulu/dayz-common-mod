@@ -7,6 +7,8 @@ modded class MissionServer
   protected ref array<ref CommonMod_Command> m_CommonModCommands;
   //! PvP-zone warning feature; null when disabled. Its Tick() is a repeating gameplay call.
   protected ref CommonMod_PvpZone m_CommonModPvpZone;
+  //! Rules-on-join feature; null when disabled. Driven by the InvokeOnConnect hook.
+  protected ref CommonMod_RulesOnJoin m_CommonModRulesOnJoin;
 
   //! Engine setup hook (after ctor, before mission start) - load config, register enabled commands.
   override void OnInit()
@@ -16,6 +18,10 @@ modded class MissionServer
 
     CommonMod_Config cfg = CommonMod_Config.Get();
     m_CommonModCommands = new array<ref CommonMod_Command>();
+
+    // shared rules renderer - one body/rendering for both the /rules command and the on-join show
+    CommonMod_Rules rules = new CommonMod_Rules();
+    rules.Configure(cfg.serverRules);
 
     if (cfg.commands.playersList.enabled)
     {
@@ -38,6 +44,13 @@ modded class MissionServer
       m_CommonModCommands.Insert(ping);
     }
 
+    if (cfg.commands.serverRules.enabled)
+    {
+      CommonMod_CommandServerRules serverRules = new CommonMod_CommandServerRules();
+      serverRules.Configure(cfg.commands.serverRules, rules);
+      m_CommonModCommands.Insert(serverRules);
+    }
+
     if (cfg.pvpZone.enabled)
     {
       m_CommonModPvpZone = new CommonMod_PvpZone();
@@ -45,13 +58,40 @@ modded class MissionServer
       GetGame().GetCallQueue(CALL_CATEGORY_GAMEPLAY).CallLater(
         m_CommonModPvpZone.Tick, cfg.pvpZone.checkIntervalSeconds * 1000, true);
     }
+
+    if (cfg.showServerRulesOnJoin.enabled)
+    {
+      m_CommonModRulesOnJoin = new CommonMod_RulesOnJoin();
+      m_CommonModRulesOnJoin.Configure(cfg.showServerRulesOnJoin, rules);
+    }
   }
 
-  //! Mission teardown - drop the repeating PvP-zone tick so it can't fire on a dead object.
+  //! Player connect hook - kick off the rules-on-join show cycle for the joining player.
+  override void InvokeOnConnect(PlayerBase player, PlayerIdentity identity)
+  {
+    super.InvokeOnConnect(player, identity);
+
+    if (m_CommonModRulesOnJoin && player)
+      m_CommonModRulesOnJoin.OnConnect(player);
+  }
+
+  //! Player disconnect hook - end the player's rules-on-join cycle so a future reconnect restarts it from the top.
+  override void PlayerDisconnected(PlayerBase player, PlayerIdentity identity, string uid)
+  {
+    super.PlayerDisconnected(player, identity, uid);
+
+    if (m_CommonModRulesOnJoin)
+      m_CommonModRulesOnJoin.OnDisconnect(uid);
+  }
+
+  //! Mission teardown - drop our queued gameplay calls so they can't fire on a dead object after teardown.
   override void OnMissionFinish()
   {
     if (m_CommonModPvpZone)
       GetGame().GetCallQueue(CALL_CATEGORY_GAMEPLAY).Remove(m_CommonModPvpZone.Tick);
+
+    if (m_CommonModRulesOnJoin)
+      GetGame().GetCallQueue(CALL_CATEGORY_GAMEPLAY).Remove(m_CommonModRulesOnJoin.ShowForUid);
 
     super.OnMissionFinish();
   }

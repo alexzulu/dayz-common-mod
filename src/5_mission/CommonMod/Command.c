@@ -45,18 +45,26 @@ class CommonMod_Command
   //! player gets it (collision fallback - a chat event carries no UID).
   protected void Reply(string senderName, string line)
   {
+    foreach (PlayerBase pb : MatchByName(senderName))
+      pb.MessageStatus(line);
+  }
+
+  //! Connected players whose display name equals `senderName`. A chat event carries no UID, so routing is by
+  //! name; duplicate nicks -> all matches (collision fallback).
+  protected array<PlayerBase> MatchByName(string senderName)
+  {
+    array<PlayerBase> matches = new array<PlayerBase>();
     array<Man> players = new array<Man>();
     GetGame().GetPlayers(players);
 
     foreach (Man m : players)
     {
       PlayerBase pb = PlayerBase.Cast(m);
-      if (!pb || !pb.GetIdentity())
-        continue;
-
-      if (pb.GetIdentity().GetName() == senderName)
-        pb.MessageStatus(line);
+      if (pb && pb.GetIdentity() && pb.GetIdentity().GetName() == senderName)
+        matches.Insert(pb);
     }
+
+    return matches;
   }
 }
 
