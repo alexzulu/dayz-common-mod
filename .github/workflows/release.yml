@@ -17,7 +17,7 @@ jobs:
         with: {path: ./tools, key: "${{ runner.os }}-makefile-${{ hashFiles('Makefile') }}"}
       - run: sudo apt-get update
       - run: sudo apt-get install --no-install-recommends --yes libvorbisenc2
-      - run: make dist/mod
+      - run: make dist
       - run: zip -r -X ../mod.zip ./*
         working-directory: ./dist
       - run: tar --create --gzip --file=../mod.tar.gz --mtime='@0' --owner=0 --group=0 *
