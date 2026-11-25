@@ -74,12 +74,33 @@ class CommonMod_PingCommandConfig
   ref CommonMod_PingL10n l10n = new CommonMod_PingL10n();
 }
 
+//! Localized strings for the /rules command.
+class CommonMod_ServerRulesCommandL10n
+{
+  //! Short summary.
+  string description = "Показать правила сервера";
+}
+
+//! Config block for the /rules command.
+class CommonMod_ServerRulesCommandConfig
+{
+  //! Master command on/off switch.
+  bool enabled = true;
+  //! Exact word that triggers the command.
+  string trigger = "/rules";
+  //! Extra trigger words (same behavior as `trigger`).
+  ref array<string> aliases = new array<string>();
+  //! User-facing strings.
+  ref CommonMod_ServerRulesCommandL10n l10n = new CommonMod_ServerRulesCommandL10n();
+}
+
 //! Per-command configuration blocks.
 class CommonMod_CommandsConfig
 {
   ref CommonMod_PlayersCommandConfig playersList = new CommonMod_PlayersCommandConfig();
   ref CommonMod_TimeCommandConfig time = new CommonMod_TimeCommandConfig();
   ref CommonMod_PingCommandConfig ping = new CommonMod_PingCommandConfig();
+  ref CommonMod_ServerRulesCommandConfig serverRules = new CommonMod_ServerRulesCommandConfig();
 }
 
 //! Localized strings for the PvP-zone warning.
@@ -119,6 +140,19 @@ class CommonMod_PvpZoneConfig
   ref CommonMod_PvpZoneL10n l10n = new CommonMod_PvpZoneL10n();
 }
 
+//! Config block for showing the server rules on player join.
+class CommonMod_ShowServerRulesOnJoinConfig
+{
+  //! Master on/off switch.
+  bool enabled = true;
+  //! Delay before the first show - player is still loading right after connect.
+  int  initialDelaySeconds = 5;
+  //! Total number of times the rules are shown per join.
+  int  repeatCount = 3;
+  //! Delay between consecutive shows.
+  int  intervalBetweenRepeatsSeconds = 60;
+}
+
 //! Root mod configuration, read from JSON on mission init.
 class CommonMod_Config
 {
@@ -134,6 +168,20 @@ class CommonMod_Config
 
   //! PvP-zone warning configuration.
   ref CommonMod_PvpZoneConfig pvpZone = new CommonMod_PvpZoneConfig();
+
+  //! Server rules body - one chat line per element. Single source shared by the /rules command and the
+  //! on-join show.
+  ref array<string> serverRules = {
+    "Правила сервера: http://dayz.alexzulu.ru",
+    "Telegram: https://t.me/alexzdayzservers",
+    "• Сервер является PvE.",
+    //"• Единственная PVP-зона - Авиационная база \"Выбор\" (NWAF).", // for chernarus only
+    //"• Вне PvP-зоны убийства игроков запрещены.", // for servers with PvP zones
+    //"• Имущество игроков вне PvP-зоны неприкосновенно." // for servers with PvP zones
+  };
+
+  //! Show-rules-on-join configuration (timing/toggle only; text is `serverRules`).
+  ref CommonMod_ShowServerRulesOnJoinConfig showServerRulesOnJoin = new CommonMod_ShowServerRulesOnJoinConfig();
 
   //! Returns the loaded config, loading it on first access.
   static CommonMod_Config Get()
@@ -159,9 +207,18 @@ class CommonMod_Config
       return;
     }
 
-    CommonMod_Config loaded;
+    // pre-seed with a defaults instance - the JSON serializer overlays ONLY the keys present in the file and
+    // leaves the rest at these class defaults.
+    CommonMod_Config loaded = new CommonMod_Config();
     if (JsonFileLoader<CommonMod_Config>.LoadFile(FILE, loaded, err))
+    {
       s_Data = loaded;
+
+      // self-healing - re-save the merged structure so fields added in a newer mod version get written into an
+      // older on-disk config (missing keys load as their class defaults; existing values are preserved)
+      if (!JsonFileLoader<CommonMod_Config>.SaveFile(FILE, s_Data, err))
+        ErrorEx("CommonMod: cannot rewrite config after load: " + err);
+    }
     else
       ErrorEx("CommonMod: cannot read config, keeping defaults: " + err);
   }
